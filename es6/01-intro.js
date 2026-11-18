@@ -66,7 +66,7 @@ function testBar() {
   bar(1, 2, 3, 4, 5);
 }
 
-// 对象扩展
+// 对象扩展: 属性简写, 属性计算, 函数简写
 function getCar(make, model, value) {
   return {
     make, // make: make,
@@ -157,7 +157,7 @@ function testForOfForIn() {
   }
 }
 
-// map, weak map
+// map
 function testMap() {
   var map1 = new Map();
   var keyString = "a string",
@@ -174,13 +174,165 @@ function testMap() {
   console.log(map1.get(keyFunc));
 }
 
+// weak map, key 必须是对象,
+// weak map api: set(),get(), has(), delete()
+// weak map 的 key 没有其他对象引用时, 该key可以被GC回收, 但并不是立即回收
+let window = {};
 function testWeakMap() {
-  let w_map = new WeakMap()
-  
+  let w_map = new WeakMap();
+  // w_map.set("str_key", "value for str key"); // TypeError: Invalid value used as weak map key
+  let obj1 = {},
+    obj2 = function () {},
+    obj3 = window;
+
+  w_map.set(obj1, "value for key obj1");
+  w_map.set(obj2, "value for key obj2");
+  w_map.set(obj3, undefined);
+
+  console.log(w_map.get(obj1));
+  console.log(w_map.get(obj2));
+  console.log(w_map.get(obj3));
 }
 
-// set, weak set
-function testSetAndWeakSet() {}
+// set
+function testSet() {
+  let langs = new Set([1, 2, 3]);
+  langs.add("c");
+  langs.add("c++");
+  langs.add({ name: "js", value: "javascript" });
+  console.log(langs);
+  console.log(langs.size);
+
+  // forEach 遍历
+  langs.forEach((item) => console.log(item));
+
+  // forOf 遍历
+  for (const element of langs) {
+    console.log(element);
+  }
+}
+
+// weak set
+function testWeakSet() {
+  let w_set = new WeakSet();
+  let obj4 = {};
+  let obj5 = {};
+
+  w_set.add(window);
+  w_set.add(obj4);
+
+  console.log(w_set.has(window));
+  console.log(w_set.has(obj5));
+
+  w_set.delete(window);
+  console.log(w_set.has(window));
+}
+
+// class, 原型链的语法糖
+function testClass() {
+  class Task {
+    constructor() {
+      console.log("call consturctor");
+    }
+
+    showId() {
+      console.log(123);
+    }
+
+    static loadAll() {
+      console.log("Loading all tasks ...");
+    }
+  }
+
+  console.log(typeof Task); // function
+  let t1 = new Task();
+  t1.showId();
+  Task.loadAll();
+
+  class Car {
+    constructor() {
+      console.log("调用父类/基类构造方法");
+    }
+  }
+
+  class BWM extends Car {
+    constructor() {
+      console.log("调用子类构造方法1");
+      super();
+      console.log("调用子类构造方法2");
+    }
+  }
+
+  let bwm = new BWM();
+}
+
+// Symbol, 不可变唯一类型
+function testSymbol() {
+  let s1 = Symbol("desc");
+  console.log(s1);
+
+  let obj6 = {
+    name: "testSymbol",
+    [Symbol("random")]: "value for symbol",
+  };
+
+  console.log(obj6);
+  console.log(Object.getOwnPropertyNames(obj6));
+  console.log(Object.getOwnPropertySymbols(obj6));
+}
+
+// Iterator, 迭代器
+function testIterator() {
+  let days = [1, 2, 3, 4, 5];
+  let itr = days[Symbol.iterator]();
+  let n = itr.next();
+  while (!n.done) {
+    console.log(n);
+    n = itr.next();
+  }
+}
+
+function* getNumber() {
+  let n = 1;
+  while (true) {
+    yield 2 * n++ - 1;
+  }
+}
+// Generators 生成器
+function testGenerator() {
+  let gen = getNumber();
+  console.log(gen.next());
+  console.log(gen.next());
+  console.log(gen.next());
+  console.log(gen.next());
+  console.log(gen.next());
+}
+
+// Promise
+
+/**
+ * Creates a new Promise.
+ * @param executor A callback used to initialize the promise. This callback is passed two arguments:
+ * a resolve callback used to resolve the promise with a value or the result of another promise,
+ * and a reject callback used to reject the promise with a provided reason or error.
+ */
+
+// (executor: (resolve: () => void, reject: () => void) => void)
+function testPromise(n) {
+  let p = new Promise(function (resolve, reject) {
+    if (n === 1) {
+      resolve("success, n is 1");
+    } else {
+      reject("error, n is not 1");
+    }
+  });
+
+  p.then(
+    (value) => console.log(value),
+    (reason) => console.log(reason),
+  );
+}
+
 // let_const_block()
 
 // arrow_function(1, 2);
@@ -208,3 +360,21 @@ function testSetAndWeakSet() {}
 // testForOfForIn();
 
 // testMap()
+
+// testWeakMap();
+
+// testSet();
+
+// testWeakSet();
+
+// testClass();
+
+// testSymbol();
+
+// testIterator();
+
+// testGenerator();
+
+// testPromise(1);
+
+// testPromise(2);
